@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#173e39">
+    <title>Folha completa | Folha Clara</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header th:replace="~{fragments/nav :: navigation}"></header>
+<main class="page-shell">
+    <a class="back-link" th:href="@{/}"><span aria-hidden="true">←</span> Voltar ao painel</a>
+    <section class="page-heading report-heading reveal">
+        <div><p class="eyebrow">RELATÓRIO CONSOLIDADO</p><h1>Folha de pagamento</h1><p class="heading-copy">Demonstrativo de salários base, adicionais e valores finais.</p></div>
+        <button class="button button-outline print-button" type="button" onclick="window.print()">Imprimir folha</button>
+    </section>
+    <section class="report-total reveal">
+        <div><span class="metric-label">Total geral da folha</span><strong th:text="${@formatadorMoeda.formatar(resumo.totalFolha)}">R$ 0,00</strong></div>
+        <span class="report-count" th:text="${resumo.quantidadeColaboradores} + ' colaboradores'">0 colaboradores</span>
+    </section>
+    <section class="roster-section report-table reveal">
+        <div class="table-wrap" th:if="${!colaboradores.isEmpty()}">
+            <table>
+                <thead><tr><th scope="col">Matrícula</th><th scope="col">Nome</th><th scope="col">Tipo</th><th scope="col" class="numeric">Salário base</th><th scope="col" class="numeric">Adicionais</th><th scope="col" class="numeric">Salário final</th></tr></thead>
+                <tbody>
+                <tr th:each="colaborador : ${colaboradores}">
+                    <td class="mono" th:text="${colaborador.matricula}">000</td>
+                    <td><a class="person-link" th:href="@{/folha/{matricula}(matricula=${colaborador.matricula})}" th:text="${colaborador.nome}">Nome</a></td>
+                    <td><span class="type-tag" th:classappend="${colaborador.codigoPersistencia.toLowerCase()}" th:text="${colaborador.tipo}">Tipo</span></td>
+                    <td class="numeric" th:text="${@formatadorMoeda.formatar(colaborador.salarioBase)}">R$ 0,00</td>
+                    <td class="numeric" th:text="${@formatadorMoeda.formatar(colaborador.adicional)}">R$ 0,00</td>
+                    <td class="numeric amount-strong" th:text="${@formatadorMoeda.formatar(colaborador.salarioFinal)}">R$ 0,00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="empty-state" th:if="${colaboradores.isEmpty()}"><h3>Folha sem registros</h3><p>Cadastre colaboradores para gerar o demonstrativo.</p><a class="button button-primary" th:href="@{/colaboradores/novo}">Cadastrar colaborador</a></div>
+    </section>
+    <section class="category-summary" th:if="${!resumo.totaisPorCategoria.isEmpty()}">
+        <h2>Totais por categoria</h2>
+        <div class="category-list">
+            <div class="category-item" th:each="categoria : ${resumo.totaisPorCategoria}"><span class="category-dot" aria-hidden="true"></span><span class="category-name" th:text="${categoria.key}">Categoria</span><strong th:text="${@formatadorMoeda.formatar(categoria.value)}">R$ 0,00</strong></div>
+        </div>
+    </section>
+</main>
+<footer class="site-footer"><span>Folha Clara</span><span>Relatório consolidado</span></footer>
+</body>
+</html>

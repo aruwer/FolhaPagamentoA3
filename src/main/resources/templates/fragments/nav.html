@@ -1,0 +1,11 @@
+<header class="site-header" th:fragment="navigation">
+    <a class="brand" th:href="@{/}" aria-label="Folha Clara, página inicial">
+        <span class="brand-mark" aria-hidden="true">F</span>
+        <span>Folha <strong>Clara</strong></span>
+    </a>
+    <nav class="main-nav" aria-label="Navegação principal">
+        <a th:href="@{/}" th:classappend="${pagina == 'painel'} ? 'active'">Painel</a>
+        <a th:href="@{/folha}" th:classappend="${pagina == 'folha'} ? 'active'">Folha de pagamento</a>
+    </nav>
+    <a class="header-action" th:href="@{/colaboradores/novo}">Novo colaborador <span aria-hidden="true">+</span></a>
+</header>

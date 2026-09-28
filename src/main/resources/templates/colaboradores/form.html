@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#173e39">
+    <title th:text="${edicao ? 'Editar colaborador' : 'Novo colaborador'} + ' | Folha Clara'">Colaborador | Folha Clara</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header th:replace="~{fragments/nav :: navigation}"></header>
+<main class="page-shell form-shell">
+    <a class="back-link" th:href="@{/}"><span aria-hidden="true">←</span> Voltar ao painel</a>
+    <section class="form-heading">
+        <p class="eyebrow" th:text="${edicao ? 'ATUALIZAÇÃO CADASTRAL' : 'NOVO REGISTRO'}">NOVO REGISTRO</p>
+        <h1 th:text="${edicao ? 'Editar colaborador' : 'Cadastrar colaborador'}">Cadastrar colaborador</h1>
+        <p>Preencha os dados para calcular a remuneração automaticamente.</p>
+    </section>
+
+    <form class="employee-form" method="post" th:object="${form}"
+          th:action="${edicao} ? @{/colaboradores/{matricula}(matricula=${form.matricula})} : @{/colaboradores}">
+        <div class="notice notice-error" th:if="${erro}" th:text="${erro}" role="alert"></div>
+        <div class="form-errors" th:if="${#fields.hasErrors('*')}" role="alert">
+            Confira os campos destacados antes de continuar.
+        </div>
+
+        <section class="form-section">
+            <div class="form-section-heading"><span class="step-number">01</span><div><h2>Dados cadastrais</h2><p>Identificação e salário base</p></div></div>
+            <div class="form-grid">
+                <div class="field">
+                    <label for="matricula">Matrícula <span class="required-mark">*</span></label>
+                    <input id="matricula" type="text" th:field="*{matricula}" maxlength="40" autocomplete="off" required th:readonly="${edicao}" th:classappend="${#fields.hasErrors('matricula')} ? 'invalid'">
+                    <small class="field-error" th:errors="*{matricula}"></small>
+                </div>
+                <div class="field">
+                    <label for="nome">Nome completo <span class="required-mark">*</span></label>
+                    <input id="nome" type="text" th:field="*{nome}" maxlength="120" autocomplete="name" required th:classappend="${#fields.hasErrors('nome')} ? 'invalid'">
+                    <small class="field-error" th:errors="*{nome}"></small>
+                </div>
+                <div class="field">
+                    <label for="salarioBase">Salário base <span class="required-mark">*</span></label>
+                    <div class="input-prefix"><span>R$</span><input id="salarioBase" type="number" th:field="*{salarioBase}" min="0" step="0.01" required th:classappend="${#fields.hasErrors('salarioBase')} ? 'invalid'"></div>
+                    <small class="field-error" th:errors="*{salarioBase}"></small>
+                </div>
+                <div class="field">
+                    <label for="tipo">Tipo de remuneração <span class="required-mark">*</span></label>
+                    <select id="tipo" th:field="*{tipo}" required th:classappend="${#fields.hasErrors('tipo')} ? 'invalid'">
+                        <option value="PADRAO">Salário base</option>
+                        <option value="COMISSIONADO">Salário + comissão</option>
+                        <option value="PRODUCAO">Salário + produção</option>
+                    </select>
+                    <small class="field-error" th:errors="*{tipo}"></small>
+                </div>
+            </div>
+        </section>
+
+        <section class="form-section remuneration-section">
+            <div class="form-section-heading"><span class="step-number">02</span><div><h2>Remuneração variável</h2><p>Campos conforme a categoria selecionada</p></div></div>
+            <div class="form-grid">
+                <div class="field conditional-field" data-type-fields="COMISSIONADO">
+                    <label for="valorVendas">Valor das vendas</label>
+                    <div class="input-prefix"><span>R$</span><input id="valorVendas" type="number" th:field="*{valorVendas}" min="0" step="0.01" data-required-for-type></div>
+                    <small class="field-error" th:errors="*{valorVendas}"></small>
+                </div>
+                <div class="field conditional-field" data-type-fields="COMISSIONADO">
+                    <label for="percentualComissao">Comissão sobre vendas</label>
+                    <div class="input-suffix"><input id="percentualComissao" type="number" th:field="*{percentualComissao}" min="0" step="0.01" data-required-for-type><span>%</span></div>
+                    <small class="field-error" th:errors="*{percentualComissao}"></small>
+                </div>
+                <div class="field conditional-field" data-type-fields="PRODUCAO">
+                    <label for="quantidadeProduzida">Quantidade produzida</label>
+                    <input id="quantidadeProduzida" type="number" th:field="*{quantidadeProduzida}" min="0" step="0.01" data-required-for-type>
+                    <small class="field-error" th:errors="*{quantidadeProduzida}"></small>
+                </div>
+                <div class="field conditional-field" data-type-fields="PRODUCAO">
+                    <label for="valorPorUnidade">Valor por unidade</label>
+                    <div class="input-prefix"><span>R$</span><input id="valorPorUnidade" type="number" th:field="*{valorPorUnidade}" min="0" step="0.01" data-required-for-type></div>
+                    <small class="field-error" th:errors="*{valorPorUnidade}"></small>
+                </div>
+                <p class="conditional-hint" data-type-hint="PADRAO">Esta categoria recebe apenas o salário base cadastrado.</p>
+                <p class="conditional-hint" data-type-hint="COMISSIONADO">A comissão será calculada sobre as vendas informadas.</p>
+                <p class="conditional-hint" data-type-hint="PRODUCAO">O adicional será calculado pela quantidade vezes o valor por unidade.</p>
+            </div>
+        </section>
+
+        <div class="form-actions">
+            <a class="button button-quiet" th:href="@{/}">Cancelar</a>
+            <button class="button button-primary" type="submit" th:text="${edicao ? 'Salvar alterações' : 'Cadastrar colaborador'}">Cadastrar colaborador</button>
+        </div>
+    </form>
+</main>
+<script th:src="@{/js/colaborador-form.js}" defer></script>
+</body>
+</html>

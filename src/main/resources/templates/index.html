@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#173e39">
+    <title>Painel | Folha Clara</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header th:replace="~{fragments/nav :: navigation}"></header>
+<main class="page-shell">
+    <section class="page-heading reveal">
+        <div>
+            <p class="eyebrow">GESTÃO DE PESSOAS <span></span> COMPETÊNCIA ATUAL</p>
+            <h1>Folha de pagamento</h1>
+            <p class="heading-copy">Acompanhe colaboradores, remunerações e o custo total da equipe.</p>
+        </div>
+        <a class="button button-primary" th:href="@{/colaboradores/novo}">Cadastrar colaborador <span aria-hidden="true">+</span></a>
+    </section>
+
+    <div class="notice notice-success" th:if="${sucesso}" th:text="${sucesso}" role="status"></div>
+    <div class="notice notice-error" th:if="${erro}" th:text="${erro}" role="alert"></div>
+
+    <section class="metrics reveal" aria-label="Indicadores da folha">
+        <article class="metric metric-count">
+            <span class="metric-label">Colaboradores ativos</span>
+            <strong class="metric-value" th:text="${resumo.quantidadeColaboradores}">0</strong>
+            <span class="metric-foot">Pessoas cadastradas</span>
+        </article>
+        <article class="metric metric-total">
+            <span class="metric-label">Custo mensal da folha</span>
+            <strong class="metric-value metric-currency" th:text="${@formatadorMoeda.formatar(resumo.totalFolha)}">R$ 0,00</strong>
+            <span class="metric-foot">Salários e adicionais</span>
+        </article>
+        <article class="metric metric-types">
+            <span class="metric-label">Modelos de remuneração</span>
+            <strong class="metric-value">03</strong>
+            <span class="metric-foot">Base, comissão e produção</span>
+        </article>
+    </section>
+
+    <section class="category-strip reveal" aria-labelledby="category-title">
+        <div class="section-intro">
+            <div>
+                <p class="eyebrow">DISTRIBUIÇÃO</p>
+                <h2 id="category-title">Total por categoria</h2>
+            </div>
+            <a class="text-link" th:href="@{/folha}">Ver folha completa <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="category-list" th:if="${!resumo.totaisPorCategoria.isEmpty()}">
+            <div class="category-item" th:each="categoria : ${resumo.totaisPorCategoria}">
+                <span class="category-dot" aria-hidden="true"></span>
+                <span class="category-name" th:text="${categoria.key}">Categoria</span>
+                <strong th:text="${@formatadorMoeda.formatar(categoria.value)}">R$ 0,00</strong>
+            </div>
+        </div>
+        <p class="empty-inline" th:if="${resumo.totaisPorCategoria.isEmpty()}">Os totais por categoria aparecem assim que houver colaboradores cadastrados.</p>
+    </section>
+
+    <section class="roster-section reveal" aria-labelledby="roster-title">
+        <div class="section-intro roster-heading">
+            <div>
+                <p class="eyebrow">CADASTRO</p>
+                <h2 id="roster-title">Colaboradores</h2>
+            </div>
+            <span class="count-label" th:text="${resumo.quantidadeColaboradores} + ' registros'">0 registros</span>
+        </div>
+        <div class="table-wrap" th:if="${!colaboradores.isEmpty()}">
+            <table>
+                <thead>
+                <tr>
+                    <th scope="col">Colaborador</th>
+                    <th scope="col">Matrícula</th>
+                    <th scope="col">Categoria</th>
+                    <th scope="col" class="numeric">Salário base</th>
+                    <th scope="col" class="numeric">Salário final</th>
+                    <th scope="col"><span class="visually-hidden">Ações</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="colaborador : ${colaboradores}">
+                    <td>
+                        <a class="person-link" th:href="@{/folha/{matricula}(matricula=${colaborador.matricula})}" th:text="${colaborador.nome}">Nome</a>
+                        <span class="cell-subtext" th:text="${colaborador.detalhesRemuneracao}">Remuneração</span>
+                    </td>
+                    <td class="mono" th:text="${colaborador.matricula}">000</td>
+                    <td><span class="type-tag" th:classappend="${colaborador.codigoPersistencia.toLowerCase()}" th:text="${colaborador.tipo}">Tipo</span></td>
+                    <td class="numeric" th:text="${@formatadorMoeda.formatar(colaborador.salarioBase)}">R$ 0,00</td>
+                    <td class="numeric amount-strong" th:text="${@formatadorMoeda.formatar(colaborador.salarioFinal)}">R$ 0,00</td>
+                    <td>
+                        <div class="row-actions">
+                            <a class="action-link" th:href="@{/colaboradores/{matricula}/editar(matricula=${colaborador.matricula})}">Editar</a>
+                            <form method="post" th:action="@{/colaboradores/{matricula}/excluir(matricula=${colaborador.matricula})}" onsubmit="return confirm('Excluir este colaborador?')">
+                                <button class="action-link action-delete" type="submit">Excluir</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="empty-state" th:if="${colaboradores.isEmpty()}">
+            <span class="empty-mark" aria-hidden="true">+</span>
+            <h3>Sua equipe começa aqui</h3>
+            <p>Cadastre o primeiro colaborador para calcular e acompanhar a folha.</p>
+            <a class="button button-outline" th:href="@{/colaboradores/novo}">Adicionar colaborador</a>
+        </div>
+    </section>
+</main>
+<footer class="site-footer"><span>Folha Clara</span><span>Gestão de remuneração</span></footer>
+</body>
+</html>
