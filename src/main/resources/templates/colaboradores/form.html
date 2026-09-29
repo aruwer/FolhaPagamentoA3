@@ -32,7 +32,7 @@
             <div class="form-grid">
                 <div class="field">
                     <label for="matricula">Matrícula <span class="required-mark">*</span></label>
-                    <input id="matricula" type="text" th:field="*{matricula}" maxlength="40" autocomplete="off" required th:readonly="${edicao}" th:classappend="${#fields.hasErrors('matricula')} ? 'invalid'">
+                    <input id="matricula" type="text" th:field="*{matricula}" maxlength="40" pattern="[A-Za-z0-9]+" autocomplete="off" required th:readonly="${edicao}" th:classappend="${#fields.hasErrors('matricula')} ? 'invalid'">
                     <small class="field-error" th:errors="*{matricula}"></small>
                 </div>
                 <div class="field">

@@ -1,4 +1,9 @@
 const tipoSelect = document.querySelector("#tipo");
+const matriculaInput = document.querySelector("#matricula");
+
+matriculaInput.addEventListener("input", () => {
+    matriculaInput.value = matriculaInput.value.replace(/[^A-Za-z0-9]/g, "");
+});
 
 function atualizarCampos() {
     const tipo = tipoSelect.value;

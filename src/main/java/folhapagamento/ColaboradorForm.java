@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Pattern;
 
 public class ColaboradorForm {
     @NotBlank(message = "Informe a matrícula.")
+    @Pattern(regexp = "[A-Za-z0-9]+", message = "A matrícula deve conter apenas letras sem acento e números.")
     private String matricula;
 
     @NotBlank(message = "Informe o nome.")
